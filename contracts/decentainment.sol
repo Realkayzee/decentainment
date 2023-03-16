@@ -93,12 +93,12 @@ contract Decentainment is ERC721URIStorage{
     /**
      * @dev     . function to get tokenuri of all nft purchased by a user
      */
-    function getTokensURI() external view returns(string[] memory _tokenURI) {
-        uint256 length = getID[msg.sender].length;
+    function getTokensURI(address _addr) external view returns(string[] memory _tokenURI) {
+        uint256 length = getID[_addr].length;
         _tokenURI = new string[](length);
 
         for(uint256 i = 0; i < length; i++){
-            _tokenURI[i] = tokenURI(getID[msg.sender][i]);
+            _tokenURI[i] = tokenURI(getID[_addr][i]);
         }
     }
 
@@ -113,12 +113,12 @@ contract Decentainment is ERC721URIStorage{
         }
     }
 
-    function getUserData() external view returns(uint256[] memory _userData){
-        uint len = getID[msg.sender].length;
+    function getUserData(address _addr) external view returns(uint256[] memory _userData){
+        uint len = getID[_addr].length;
         _userData = new uint256[](len);
 
         for(uint256 i = 0; i < len; i++){
-            _userData[i] = getID[msg.sender][i];
+            _userData[i] = getID[_addr][i];
         }
 
     }
