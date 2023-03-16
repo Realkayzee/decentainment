@@ -3,8 +3,17 @@ import {
     Text,
     Grid,
     Image,
-    Card
+    Card,
+    useToast
 } from "@chakra-ui/react";
+
+import { useAccount, useContractRead, useContractWrite, useWaitForTransaction } from "wagmi";
+import { ethers } from "ethers";
+import { decentainmentSetup, decentainmentCA, cUSDSetup } from "@/components/constants";
+import { HexToDecimal } from "@/components/Helpers";
+import { useState, useEffect } from "react";
+import Link from "next/link";
+
 
 export const OGCard = [
     {
@@ -65,6 +74,54 @@ export const OGCard = [
 
 
 const Ogspot = () => {
+    const toast = useToast()
+    
+    const { address } = useAccount()
+
+    const [ogcard, setOgcard] = useState([]);
+    const [ognumber, setOgnumber] = useState();
+
+
+    const { data:ogread } = useContractRead({
+        ...decentainmentSetup,
+        functionName: "getAllOG"
+    })
+    
+
+    useEffect(() => {
+        if(ogread){
+          setOgcard([])
+          ogread.map((item) => {
+            fetchIPFSJson(item)
+          })
+        }
+
+
+        async function fetchIPFSJson(element){
+            const uri = makeURL(element[0])
+            const respond = await fetch(uri)
+            const metadata = await respond.json()
+            const imageUrl = makeURL(metadata.image)
+            const name = metadata.name
+            const slogan = metadata.description
+      
+            const objects = {
+              name: name,
+              listedAmount: (HexToDecimal(element[1]?._hex)/1e18),
+              imageUrl: imageUrl,
+              slogan: slogan,
+              currentSupply: HexToDecimal(element[3]?._hex),
+              supplyLeft: (HexToDecimal(element[4]?._hex) - HexToDecimal(element[3]?._hex))
+            }
+            setOgcard(prev => [...prev, objects])
+            
+          }
+        
+      
+          function makeURL(ipfs){
+            return ipfs.replace(/^ipfs:\/\//, "https://dweb.link/ipfs/");
+          }
+    }, [ogread]);
 
 
     return (
@@ -85,33 +142,35 @@ const Ogspot = () => {
             >
                 <Grid templateColumns="repeat(3, 1fr)" gap={6}>
                     {
-                        OGCard?.map((item, index) => (
-                            <Card bgColor={"purple.200"} h="21em" boxShadow="md" p="10px" key={index} cursor={"pointer"}>
-                                <Image src={item.image} alt={item.name} h="12em" borderRadius={"8px"} />
-                                <Box mt="10px">
-                                    <Text>
-                                    <b>Name:</b> {item.name}
-                                    </Text>
-                                    <Text>
-                                    <b>Slogan:</b> <i>{item.slogan}</i>
-                                    </Text>
-                                    <Text>
-                                    <b>Listed Amount:</b> {item.listedAmount}
-                                    </Text>
-                                    <Text>
-                                    <b>Current Count:</b> {item.currentSupply}
-                                    </Text>
-                                    <Text>
-                                    <b>Supply Left:</b> {item.supplyLeft}
-                                    </Text>
-                                </Box>
+                        ogcard?.map((item, index) => (
+                          <Link href={`/buycard/${index}`} key={index}>
+                            <Card bgColor={"purple.200"} h="21em" boxShadow="md" p="10px" cursor={"pointer"}>
+                            <Image src={item.imageUrl} alt={item.name} h="12em" borderRadius={"8px"} />
+                            <Box mt="10px">
+                                <Text>
+                                <b>Name:</b> {item.name}
+                                </Text>
+                                <Text>
+                                <b>Slogan:</b> <i>{item.slogan}</i>
+                                </Text>
+                                <Text>
+                                <b>Listed Amount:</b> {item.listedAmount} cUSD
+                                </Text>
+                                <Text>
+                                <b>Current Count:</b> {item.currentSupply}
+                                </Text>
+                                <Text>
+                                <b>Supply Left:</b> {item.supplyLeft}
+                                </Text>
+                            </Box>
                             </Card>
+                          </Link>
                         ))
                     }
                 </Grid>
             </Box>
         </Box>
-    );
+    )
 }
 
 export default Ogspot;

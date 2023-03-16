@@ -8,11 +8,9 @@ import { jsonRpcProvider } from "wagmi/providers/jsonRpc";
 import merge from 'lodash.merge';
 import { connectorsForWallets } from '@rainbow-me/rainbowkit';
 import { metaMaskWallet } from '@rainbow-me/rainbowkit/wallets';
-
+import { RPC_URL } from '@/components/constants'
 import "../styles/globals.css"
 import '@rainbow-me/rainbowkit/styles.css';
-
-const RPC_URL = process.env.CELO_RPC_URL
 
 
 const celoAlfajores = {

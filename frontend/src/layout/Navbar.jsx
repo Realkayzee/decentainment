@@ -19,15 +19,15 @@ export const Navbar = () => {
         },
         {
             name: "Create",
-            link: "create/"
+            link: "/create"
         },
         {
             name: "OG Spot",
-            link: "ogspot/"
+            link: "/ogspot"
         },
         {
             name: "Profile",
-            link: "profile/"
+            link: "/profile"
         },
     ]
 

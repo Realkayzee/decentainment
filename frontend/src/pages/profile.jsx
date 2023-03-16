@@ -3,11 +3,28 @@ import {
     Grid,
     Card,
     Image,
-    Text
+    Text,
+    Button
 } from "@chakra-ui/react";
 import { OGCard } from "./ogspot";
+import { useContractRead, useAccount, useContractWrite } from "wagmi";
+import { decentainmentSetup } from "@/components/constants";
 
 const Profile = () => {
+    const { address } = useAccount()
+
+    const { data:getId } = useContractRead({
+        ...decentainmentSetup,
+        functionName: "getTokensURI",
+    })
+
+    function submit(e){
+        e.preventDefault();
+        write()
+    }
+
+    console.log(getId, "my token uri")
+
     return (
         <Box w="90%" mx={"5%"} pb="2em">
             <Box mt="5em"  borderRadius="10px 10px 0 0" bgColor="purple.100" boxShadow="xs" p="5px">
@@ -45,6 +62,9 @@ const Profile = () => {
                     </Card>
                 ))
                 }
+                <Button onClick={submit}>
+                    click
+                </Button>
             </Grid>
             </Box>
         </Box>
