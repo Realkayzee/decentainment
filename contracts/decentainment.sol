@@ -46,6 +46,8 @@ contract Decentainment is ERC721URIStorage{
      * @param   _maxSupply  . maximum supply of NFt that will ever exist
      */
     function createOG(string memory _nftURI, uint128 _listedAmount, uint256 _maxSupply) external {
+        require(bytes(_nftURI).length > 0, "NFT URI cannot be empty");
+        require(_listedAmount > 0, "Listed amount must be greater than zero");
         OGDetails storage OGD = OGCount[OGNumber];
         OGD.nftURI = _nftURI;
         OGD.listedAmount = _listedAmount;
@@ -64,6 +66,9 @@ contract Decentainment is ERC721URIStorage{
      * @param   _OGNumber  . identification number of your artist
      */
     function joinOG(uint256 _OGNumber) external {
+         require(OGCount[_OGNumber] > 0, "Invalid OG Number");
+         require(msg.value == OGPrice[_OGNumber], "Invalid amount sent");
+         require(OGListed[_OGNumber], "OG not available for purchase");
         require(!purchased[_OGNumber][msg.sender], "You can't purchase twice");
         OGDetails storage OGD = OGCount[_OGNumber];
         require(tokenAddress.transferFrom(msg.sender, address(this), OGD.listedAmount), "Insufficient Amount");
@@ -84,6 +89,7 @@ contract Decentainment is ERC721URIStorage{
      * @param   _OGNumber  . identification number of your artist
      */
     function withdrawOGDeposit(uint256 _OGNumber) external {
+       require(amount > 0, "Withdrawal amount must be greater than 0");
        OGDetails storage OGD = OGCount[_OGNumber];
        require(msg.sender == OGD.OGCreator, "You are not a creator");
        uint256 amountToWithdraw = OGD.amountEarned;
@@ -96,6 +102,7 @@ contract Decentainment is ERC721URIStorage{
      * @dev     . function to get tokenuri of all nft purchased by a user
      */
     function getTokensURI(address _addr) external view returns(string[] memory _tokenURI) {
+        require(_addr != address(0), "Invalid address");
         uint256 length = getID[_addr].length;
         _tokenURI = new string[](length);
 
