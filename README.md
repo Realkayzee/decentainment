@@ -1,13 +1,12 @@
-# Sample Hardhat Project
+# Decentainment
 
-This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, and a script that deploys that contract.
 
-Try running some of the following tasks:
+### Decentainment is a dapp that connects every artist to their fans
+- Artist can come in to upload and create their nft by filling out the form properly
+- The specified price is the listed amount
+- Any fan can come in to purchase his/her artist fan card
+- it can serve as a utility for the fan depending on the artist
+- Users can see the list of their owned fan card by checking the profile tab
+- Artist can withdraw profit made from selling their fan card in the withdraw page
 
-```shell
-npx hardhat help
-npx hardhat test
-REPORT_GAS=true npx hardhat test
-npx hardhat node
-npx hardhat run scripts/deploy.ts
-```
+The smart contract was well commented

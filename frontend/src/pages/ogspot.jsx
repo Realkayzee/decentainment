@@ -88,7 +88,6 @@ const Ogspot = () => {
         functionName: "getAllOG"
     })
 
-    console.log(ogread, "returns")
     
 
     useEffect(() => {
