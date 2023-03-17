@@ -1,5 +1,6 @@
 # Decentainment
 
+to go to dapp => https://decentainment.vercel.app/
 
 ### Decentainment is a dapp that connects every artist to their fans
 - Artist can come in to upload and create their nft by filling out the form properly
