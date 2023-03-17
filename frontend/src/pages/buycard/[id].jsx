@@ -22,7 +22,6 @@ const BuyCard = () => {
     const { query } = useRouter()
     const route = useRouter()
     const pageId = Number(query.id)
-    console.log((pageId + 1), "ldk")
 
     const [ogcard, setOgcard] = useState();
 

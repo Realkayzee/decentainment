@@ -87,7 +87,7 @@ const Create = () => {
             setTimeout(() => {
                 onClose()
                 route.push("/")
-            }, 6000);
+            }, 3000);
         },
         onError(){
             toast({

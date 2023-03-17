@@ -2,7 +2,7 @@ import decentainmentAbi from "../abi/decentainmentAbi.json"
 import ierc20Abi from "../abi/IERC20.json"
 
 
-export const decentainmentCA = "0x60b2aC0119879B993eB3592DaAaA8d564e3615CA"
+export const decentainmentCA = "0xCe9682c38dab028bB5650778ed632f4E9da54967"
 
 export const cUSDCA = "0x874069Fa1Eb16D44d622F2e0Ca25eeA172369bC1"
 

@@ -29,6 +29,10 @@ export const Navbar = () => {
             name: "Profile",
             link: "/profile"
         },
+        {
+            name: "Withdraw",
+            link: "/withdraw"
+        }
     ]
 
 
@@ -40,8 +44,8 @@ export const Navbar = () => {
                         Decentenmaint
                     </Text>
                 </GridItem>
-                <GridItem colSpan={3}/>
-                <GridItem colSpan={2}>
+                <GridItem colSpan={2}/>
+                <GridItem colSpan={3}>
                     <Flex minWidth="max-content">
                         {
                             navbar.map((item, index) => (

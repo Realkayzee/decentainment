@@ -4,7 +4,8 @@ import {
     Grid,
     Image,
     Card,
-    useToast
+    useToast,
+    Flex
 } from "@chakra-ui/react";
 
 import { useAccount, useContractRead, useContractWrite, useWaitForTransaction } from "wagmi";
@@ -86,6 +87,8 @@ const Ogspot = () => {
         ...decentainmentSetup,
         functionName: "getAllOG"
     })
+
+    console.log(ogread, "returns")
     
 
     useEffect(() => {
@@ -111,7 +114,8 @@ const Ogspot = () => {
               imageUrl: imageUrl,
               slogan: slogan,
               currentSupply: HexToDecimal(element[3]?._hex),
-              supplyLeft: (HexToDecimal(element[4]?._hex) - HexToDecimal(element[3]?._hex))
+              supplyLeft: (HexToDecimal(element[4]?._hex) - HexToDecimal(element[3]?._hex)),
+              slotNumber: HexToDecimal(element[6]?._hex)
             }
             setOgcard(prev => [...prev, objects])
             
@@ -147,21 +151,24 @@ const Ogspot = () => {
                             <Card bgColor={"purple.200"} h="21em" boxShadow="md" p="10px" cursor={"pointer"}>
                             <Image src={item.imageUrl} alt={item.name} h="12em" borderRadius={"8px"} />
                             <Box mt="10px">
-                                <Text>
+                              <Text>
+                                <b>Slot No. #</b>{item.slotNumber}
+                              </Text>
+                              <Text>
                                 <b>Name:</b> {item.name}
-                                </Text>
-                                <Text>
+                              </Text>
+                              <Text>
                                 <b>Slogan:</b> <i>{item.slogan}</i>
-                                </Text>
-                                <Text>
+                              </Text>
+                              <Text>
                                 <b>Listed Amount:</b> {item.listedAmount} cUSD
-                                </Text>
-                                <Text>
+                              </Text>
+                              <Text>
                                 <b>Current Count:</b> {item.currentSupply}
-                                </Text>
-                                <Text>
+                              </Text>
+                              <Text>
                                 <b>Supply Left:</b> {item.supplyLeft}
-                                </Text>
+                              </Text>
                             </Box>
                             </Card>
                           </Link>

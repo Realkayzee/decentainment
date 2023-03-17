@@ -9,21 +9,50 @@ import {
 import { OGCard } from "./ogspot";
 import { useContractRead, useAccount, useContractWrite } from "wagmi";
 import { decentainmentSetup } from "@/components/constants";
+import { useEffect, useState } from "react";
 
 const Profile = () => {
     const { address } = useAccount()
 
-    const { data:getId } = useContractRead({
+    const [ogcard, setOgcard] = useState([]);
+
+    const { data:getUriOwn } = useContractRead({
         ...decentainmentSetup,
         functionName: "getTokensURI",
+        args: [
+            address
+        ]
     })
 
-    function submit(e){
-        e.preventDefault();
-        write()
-    }
+    useEffect(() => {
+        if(getUriOwn){
+            setOgcard([])
+            getUriOwn.map((item) => {
+                fetchIPFSJson(item)
+            })
+        }
 
-    console.log(getId, "my token uri")
+        async function fetchIPFSJson(element){
+            const uri = makeURL(element)
+            const respond = await fetch(uri)
+            const metadata = await respond.json()
+            const imageUrl = makeURL(metadata.image)
+            const name = metadata.name
+            const slogan = metadata.description
+
+            const objects = {
+                name: name,
+                imageUrl: imageUrl,
+                slogan: slogan
+            }
+            setOgcard(prev => [...prev, objects])
+        }
+
+
+        function makeURL(ipfs){
+            return ipfs.replace(/^ipfs:\/\//, "https://dweb.link/ipfs/");
+          }
+    }, []);
 
     return (
         <Box w="90%" mx={"5%"} pb="2em">
@@ -42,29 +71,20 @@ const Profile = () => {
             >
             <Grid templateColumns="repeat(3, 1fr)" gap={5}>
                 {
-                OGCard.map((item, index) => (
-                    <Card bgColor={"purple.200"} h="20em" boxShadow="md" p="10px" key={index}>
-                    <Image src={item.image} alt={item.slogan} h="12em" borderRadius={"8px"}/>
-                    <Box mt="10px">
-                        <Text>
-                        <b>Name:</b> {item.name}
-                        </Text>
-                        <Text>
-                        <b>Slogan:</b> <i>{item.slogan}</i>
-                        </Text>
-                        <Text>
-                        <b>Current Supply:</b> {item.currentSupply}
-                        </Text>
-                        <Text>
-                        <b>Supply Left:</b> {item.supplyLeft}
-                        </Text>
-                    </Box>
-                    </Card>
-                ))
+                    ogcard.map((item, index) => (
+                        <Card bgColor={"purple.200"} h="15em" boxShadow="md" p="10px" key={index}>
+                            <Image src={item.imageUrl} alt={item.slogan} h="10em" borderRadius={"8px"}/>
+                            <Box mt={"10px"}>
+                                <Text>
+                                    <b>Name:</b> {item.name}
+                                </Text>
+                                <Text>
+                                    <b>Slogan:</b> {item.slogan}
+                                </Text>
+                            </Box>
+                        </Card>
+                    ))
                 }
-                <Button onClick={submit}>
-                    click
-                </Button>
             </Grid>
             </Box>
         </Box>

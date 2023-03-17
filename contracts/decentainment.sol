@@ -28,6 +28,7 @@ contract Decentainment is ERC721URIStorage{
         uint256 OGCardCount;
         uint256 maxSupply;
         uint256 amountEarned;
+        uint256 slotNumber;
     }
     mapping(uint256 => OGDetails) public OGCount;
 
@@ -50,6 +51,7 @@ contract Decentainment is ERC721URIStorage{
         OGD.listedAmount = _listedAmount;
         OGD.OGCreator = msg.sender;
         OGD.maxSupply = _maxSupply;
+        OGD.slotNumber = OGNumber;
 
         emit _createOG(_nftURI, _listedAmount, _maxSupply, OGNumber);
 
@@ -63,7 +65,7 @@ contract Decentainment is ERC721URIStorage{
      */
     function joinOG(uint256 _OGNumber) external {
         require(!purchased[_OGNumber][msg.sender], "You can't purchase twice");
-        OGDetails memory OGD = OGCount[_OGNumber];
+        OGDetails storage OGD = OGCount[_OGNumber];
         require(tokenAddress.transferFrom(msg.sender, address(this), OGD.listedAmount), "Insufficient Amount");
         OGD.amountEarned += OGD.listedAmount;
         uint256 tokenID = _tokenIds.current();
@@ -82,7 +84,7 @@ contract Decentainment is ERC721URIStorage{
      * @param   _OGNumber  . identification number of your artist
      */
     function withdrawOGDeposit(uint256 _OGNumber) external {
-       OGDetails memory OGD = OGCount[_OGNumber];
+       OGDetails storage OGD = OGCount[_OGNumber];
        require(msg.sender == OGD.OGCreator, "You are not a creator");
        uint256 amountToWithdraw = OGD.amountEarned;
        OGD.amountEarned = 0;
