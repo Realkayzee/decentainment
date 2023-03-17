@@ -9,4 +9,4 @@
 - Users can see the list of their owned fan card by checking the profile tab
 - Artist can withdraw profit made from selling their fan card in the withdraw page
 
-The smart contract was well commented
+The smart contract is well commented
