@@ -6,9 +6,9 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 
-contract Decentainment is ERC721URIStorage{
+contract Decentainment is ERC721URIStorage {
     //***************** EVENTS **********************/
-    event _createOG(string _nftURI,uint128 _listedAmount,uint256 _maxSupply, uint256 _number);
+    event CreateOG(string _nftURI,uint128 _listedAmount,uint256 _maxSupply, uint256 _number);
 
     //********** STATE VARIABLES ************/
     using Counters for Counters.Counter;
@@ -17,21 +17,33 @@ contract Decentainment is ERC721URIStorage{
 
     Counters.Counter private _tokenIds;
 
-    mapping(uint256 => mapping(address => bool)) public purchased;
-    mapping(address => uint256[]) public getID;
-    uint OGNumber = 1;
+    uint256 OGNumber = 1;
 
     struct OGDetails {
         string nftURI;
         uint128 listedAmount;
-        address OGCreator;
-        uint256 OGCardCount;
+        address creator;
+        uint256 cardCount;
         uint256 maxSupply;
         uint256 amountEarned;
         uint256 slotNumber;
     }
+
+    // Mapping to hold all products created using a uint256 to OGDetails
     mapping(uint256 => OGDetails) public OGCount;
 
+    // Mapping of all purchased products using a uint256 to a mapping of addresses with bool values
+    mapping(uint256 => mapping(address => bool)) public purchased;
+
+    // Mapping to hold IDs purchased by an address using an address to an array of uint
+    mapping(address => uint256[]) public ids;
+
+    // isValidOG modifier to check if a requested OG exists
+    // the passed id should be less than the OGNumber but greater than 0 as the OGNumber starts from 1
+    modifier isValidOG(uint256 id) {
+        require(id < OGNumber && id > 0, "Invalid OG Id passed");
+        _;
+    }
 
     constructor(IERC20 _tokenAddress) ERC721("Decentainment", "DCT"){
         owner = msg.sender;
@@ -49,11 +61,11 @@ contract Decentainment is ERC721URIStorage{
         OGDetails storage OGD = OGCount[OGNumber];
         OGD.nftURI = _nftURI;
         OGD.listedAmount = _listedAmount;
-        OGD.OGCreator = msg.sender;
+        OGD.creator = msg.sender;
         OGD.maxSupply = _maxSupply;
         OGD.slotNumber = OGNumber;
 
-        emit _createOG(_nftURI, _listedAmount, _maxSupply, OGNumber);
+        emit CreateOG(_nftURI, _listedAmount, _maxSupply, OGNumber);
 
         OGNumber++;
     }
@@ -63,16 +75,30 @@ contract Decentainment is ERC721URIStorage{
      * @dev     . Function for showing you are a true fan of an artist
      * @param   _OGNumber  . identification number of your artist
      */
-    function joinOG(uint256 _OGNumber) external {
+    function joinOG(uint256 _OGNumber) external isValidOG(_OGNumber) {
         require(!purchased[_OGNumber][msg.sender], "You can't purchase twice");
         OGDetails storage OGD = OGCount[_OGNumber];
+
+        // check if caller of the function is the owner of the OG
+        require(msg.sender != OGD.creator, "Owner can not purchase their own OGD");
+
+        // a check for users balance,
+        // if user has enough funds, sends the amount of the OG to be purchased to the smart contract
         require(tokenAddress.transferFrom(msg.sender, address(this), OGD.listedAmount), "Insufficient Amount");
         OGD.amountEarned += OGD.listedAmount;
         uint256 tokenID = _tokenIds.current();
-        getID[msg.sender].push(tokenID);
+        ids[msg.sender].push(tokenID);
+
+        // mint the purchased OG to the user
         _mint(msg.sender, tokenID);
+
+        // set the newly minted OG's tokenURI to the tokenURI of the purchased OG 
         _setTokenURI(tokenID, OGD.nftURI);
-        OGD.OGCardCount++;
+        
+        // increment the cardCount property of the purchased OG
+        OGD.cardCount++;
+
+        // increment the _tokenIds parameter
         _tokenIds.increment();
 
         purchased[_OGNumber][msg.sender] = true;
@@ -83,9 +109,9 @@ contract Decentainment is ERC721URIStorage{
      * @dev     . function to withdraw amount accumulated from nft sold to fans
      * @param   _OGNumber  . identification number of your artist
      */
-    function withdrawOGDeposit(uint256 _OGNumber) external {
+    function withdrawOGDeposit(uint256 _OGNumber) external isValidOG(_OGNumber) {
        OGDetails storage OGD = OGCount[_OGNumber];
-       require(msg.sender == OGD.OGCreator, "You are not a creator");
+       require(msg.sender == OGD.creator, "You are not a creator");
        uint256 amountToWithdraw = OGD.amountEarned;
        OGD.amountEarned = 0;
        require(tokenAddress.transfer(msg.sender, amountToWithdraw), "Not successful");
@@ -96,11 +122,11 @@ contract Decentainment is ERC721URIStorage{
      * @dev     . function to get tokenuri of all nft purchased by a user
      */
     function getTokensURI(address _addr) external view returns(string[] memory _tokenURI) {
-        uint256 length = getID[_addr].length;
+        uint256 length = ids[_addr].length;
         _tokenURI = new string[](length);
 
         for(uint256 i = 0; i < length; i++){
-            _tokenURI[i] = tokenURI(getID[_addr][i]);
+            _tokenURI[i] = tokenURI(ids[_addr][i]);
         }
     }
 
@@ -113,14 +139,15 @@ contract Decentainment is ERC721URIStorage{
         for(uint256 i = 1; i < OGNumber; i++){
             _allOG[i -1] = OGCount[i];
         }
+        return _allOG;
     }
 
     function getUserData(address _addr) external view returns(uint256[] memory _userData){
-        uint len = getID[_addr].length;
+        uint len = ids[_addr].length;
         _userData = new uint256[](len);
 
         for(uint256 i = 0; i < len; i++){
-            _userData[i] = getID[_addr][i];
+            _userData[i] = ids[_addr][i];
         }
 
     }
@@ -129,7 +156,7 @@ contract Decentainment is ERC721URIStorage{
      * @dev     . function to get artist details
      * @param   _OGNumber  . identification number of your artist
      */
-    function getArtist(uint256 _OGNumber) external view returns(OGDetails memory){
+    function getArtist(uint256 _OGNumber) external isValidOG(_OGNumber) view returns(OGDetails memory){
         return OGCount[_OGNumber];
     }
 
